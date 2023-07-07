@@ -1,0 +1,28 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1{
+    text-align: center;
+    font-size: 1.5em;
+    font-family: 'Poppins', sans-serif;
+}
+
+body{
+    background-color: #F06067;
+}
+
+.container{
+    width: 100%;
+    max-width: 600px;
+    padding: 2em 1.5em;
+    background-color: #fff;
+    border-radius: 20px;
+    margin: 5vh auto;
+}
+
+.required-color{
+    color: #F06067;
+}

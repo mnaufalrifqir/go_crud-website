@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/main.css" type="text/css">
+</head>
+
+<body>
+    <!-- START -->
+    <div class="container">
+        <h1>List User</h1>
+        <div class="mb-3 d-flex justify-content-end">
+            <a href="./create.html" class="btn btn-primary">Tambah</a>
+        </div>
+        <table id="user-table" class="table">
+            <thead>
+                <tr>
+                    <th>Foto Profile</th>
+                    <th>Nama</th>
+                    <th>Email</th>
+                    <th>Tanggal Lahir</th>
+                    <th>No. HP</th>
+                    <th>Jenis Kelamin</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="modal" tabindex="-1" id="deleteModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Konfimasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah anda yakin ingin menghapus data tersebut?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var tableBody = document.querySelector("#user-table tbody");
+
+            function fetchUsers() {
+                fetch("http://localhost:8000/users")
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        if (data.data) {
+                            // Clear existing table rows
+                            tableBody.innerHTML = "";
+
+                            data.data.forEach(function (user) {
+                                var row = document.createElement("tr");
+
+                                // Create table cells for each user property
+                                var urlFotoCell = document.createElement("td");
+                                var img = document.createElement("img");
+                                img.alt = "User Photo";
+                                img.style.maxWidth = "100px"; // Set max width for the image
+
+                                fetch(`/pictures/${user.url_foto}`)
+                                    .then(function (response) {
+                                        if (response.ok) {
+                                            img.src = "/assets/images/" + user.url_foto;
+                                        } else {
+                                            img.src = "/assets/images/dummy.png";
+                                        }
+                                    })
+                                urlFotoCell.appendChild(img);
+                                row.appendChild(urlFotoCell);
+
+                                var namaCell = document.createElement("td");
+                                namaCell.textContent = user.nama;
+                                row.appendChild(namaCell);
+
+                                var emailCell = document.createElement("td");
+                                emailCell.textContent = user.email;
+                                row.appendChild(emailCell);
+
+                                var tanggalLahirCell = document.createElement("td");
+                                tanggalLahirCell.textContent = user.tanggal_lahir;
+                                row.appendChild(tanggalLahirCell);
+
+                                var noHpCell = document.createElement("td");
+                                noHpCell.textContent = user.no_hp;
+                                row.appendChild(noHpCell);
+
+                                var jenisKelaminCell = document.createElement("td");
+                                jenisKelaminCell.textContent = user.jenis_kelamin;
+                                row.appendChild(jenisKelaminCell);
+
+                                var actionCell = document.createElement("td");
+                                var editButton = document.createElement("button");
+                                editButton.textContent = "Edit";
+                                editButton.classList.add("btn", "btn-secondary", "me-2");
+                                editButton.addEventListener("click", function () {
+                                    moveToEditPage(user.ID);
+                                });
+                                actionCell.appendChild(editButton);
+
+                                var deleteButton = document.createElement("button");
+                                deleteButton.textContent = "Delete";
+                                deleteButton.classList.add("btn", "btn-danger");
+                                deleteButton.addEventListener("click", function () {
+                                    deleteUser(user.ID);
+                                });
+                                actionCell.appendChild(deleteButton);
+
+                                row.appendChild(actionCell);
+
+                                tableBody.appendChild(row);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log("Error:", error);
+                    });
+            }
+
+            function deleteUser(userId) {
+                fetch(`http://localhost:8000/users/${userId}`, {
+                    method: "DELETE",
+                })
+                    .then(function (response) {
+                        if (response.ok) {
+                            fetchUsers();
+                        } else {
+                            throw new Error("Failed to delete user.");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log("Error:", error);
+                    });
+            }
+
+            function moveToEditPage(userId) {
+                window.location.href = `./edit.html?userId=${userId}`;
+            }
+
+            fetchUsers();
+        });
+    </script>
+    <!-- END -->
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Tambah Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/form.css">
+</head>
+
+<body>
+    <div class="container">
+        <form autocomplete="off">
+            <h1>Form Tambah Data</h1>
+            <div class="mb-3">
+                <label for="nama">Nama<span class="required-color">*</span></label>
+                <input type="text" class="form-control" placeholder="Masukkan Nama" id="nama" name="nama" required>
+            </div>
+            <div class="mb-3">
+                <label for="email">Email<span class="required-color">*</span></label>
+                <input type="text" class="form-control" placeholder="Masukkan Email" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="tanggal_lahir">Tanggal Lahir<span class="required-color">*</span></label>
+                <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required>
+            </div>
+            <div class="mb-3">
+                <label for="no_hp">No. HP<span class="required-color">*</span></label>
+                <input type="text" class="form-control" placeholder="Masukkan No. HP" id="no_hp" name="no_hp" required>
+            </div>
+            <div class="mb-3">
+                <label for="url_foto" class="form-label">Foto Profile<span class="required-color">*</span></label>
+                <input class="form-control" type="file" id="url_foto" name="url_foto" accept="image/*" required>
+                <div id="HelpBlock" class="form-text">
+                    File harus berupa gambar dengan format .jpg atau .png
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="jenis_kelamin">Jenis Kelamin<span class="required-color">*</span></label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="jenis_kelamin" id="laki-laki" value="Laki-laki">
+                    <label class="form-check-label" for="laki-laki">Laki-laki</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="jenis_kelamin" id="perempuan" value="Perempuan">
+                    <label class="form-check-label" for="perempuan">Perempuan</label>
+                </div>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary" onclick="postData()">Submit</button>
+            <a href="./index.html" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+    <script>
+        function postData() {
+            event.preventDefault();
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            const errorMessages = [];
+
+            for (const input of form) {
+                if (!input.value.trim()) {
+                    const label = input.previousElementSibling.innerText;
+                    const errorMessage = `${label.slice(0, -1)} tidak valid`;
+                    errorMessages.push(errorMessage);
+                    input.classList.add('is-invalid');
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            }
+
+            const urlFotoInput = document.getElementById('url_foto');
+            const file = urlFotoInput.files[0];
+
+            formData.append('url_foto', "/assets/images/" + file.name);
+
+            formData.append("nama", formData.get("nama"));
+            formData.append("email", formData.get("email"));
+            formData.append("tanggal_lahir", formData.get("tanggal_lahir"));
+            formData.append("no_hp", formData.get("no_hp"));
+            formData.append("jenis_kelamin", formData.get("jenis_kelamin"));
+
+            fetch('http://localhost:8000/users', {
+                method: 'POST',
+                body: formData
+            })
+                .then(function (response) {
+                    if (response.status !== 200) {
+                        alert("Data gagal ditambahkan")
+                        return;
+                    }
+
+                    response.json().then(function (data) {
+                        console.log(data);
+                        window.location.href = "./index.html";
+                    });
+                })
+        }
+    </script>
+</body>
+
+</html>
